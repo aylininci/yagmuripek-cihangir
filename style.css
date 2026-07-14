@@ -1,0 +1,718 @@
+/* ==========================================================================
+   YAĞMUR & CİHANGİR — DÜĞÜN DAVETİYESİ
+   Design tokens:
+     Bordo (red velvet) : #4a1420 — tek düz renk, kadife doku ile
+     Krem / kağıt        : #f6eede
+     Gümüş                : #c7ccd1
+     Gümüş açık            : #e8ecef
+     Gümüş koyu            : #8a9096
+     Neredeyse siyah        : #140a0d
+   Fonts:
+     Display (kaligrafi) : 'Dancing Script' (Türkçe karakterleri destekler)
+     Başlık/detay        : 'Cormorant Garamond'
+     Gövde metni         : 'EB Garamond'
+   ========================================================================== */
+
+:root {
+  --bordo-dark: #3a0f1c;
+  --bordo: #4a1420;
+  --bordo-soft: #5a1826;
+  --cream: #f6eede;
+  --cream-dim: #ece0c8;
+  --silver: #c7ccd1;
+  --silver-light: #e8ecef;
+  --silver-deep: #8a9096;
+  --ink: #140a0d;
+  --ink-soft: #2a1015;
+
+  --font-display: 'Dancing Script', cursive;
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'EB Garamond', serif;
+
+  --ease-soft: cubic-bezier(.22, 1, .36, 1);
+  --ease-inout: cubic-bezier(.65, 0, .35, 1);
+
+  /* Kadife dokusu: hafif gürültü deseni (feTurbulence), tek renk üstüne bindirilir */
+  --velvet-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
+  --paper-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23p)' opacity='0.35'/></svg>");
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--silver-light);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   INTRO / SPLASH SCREEN
+   ========================================================================== */
+
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6rem;
+}
+
+.intro__doves {
+  width: min(60vw, 220px);
+  opacity: 0;
+  transform: translateY(6px) scale(0.94);
+}
+
+.intro__doves img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 18px rgba(199,204,209,0.25));
+}
+
+.intro__text {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  font-size: clamp(1rem, 4vw, 1.4rem);
+  color: var(--silver-light);
+  opacity: 0;
+  text-align: center;
+  padding: 0 1.5rem;
+}
+
+/* ==========================================================================
+   ENVELOPE STAGE — düz kadife kırmızı, gradyansız + doku
+   ========================================================================== */
+
+.envelope-stage {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bordo);
+  background-image: var(--velvet-noise);
+  background-blend-mode: overlay;
+  overflow: hidden;
+  padding: 2rem 1rem;
+  opacity: 0;
+}
+
+.atmosphere { position: absolute; inset: 0; pointer-events: none; }
+#particles-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.envelope-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.4rem;
+  perspective: 1800px;
+  cursor: pointer;
+}
+
+.envelope {
+  position: relative;
+  width: min(70vw, 300px);
+  aspect-ratio: 3 / 4.1;
+  transform-style: preserve-3d;
+  transition: transform 0.6s var(--ease-soft);
+  will-change: transform;
+}
+
+/* Zemine düşen gerçekçi gölge — zarfla birlikte hafifçe tepki verir */
+.envelope__ground-shadow {
+  width: 78%;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.18) 55%, transparent 80%);
+  filter: blur(2px);
+  transform: translateY(-6px);
+  transition: transform 0.6s var(--ease-soft), opacity 0.6s ease;
+}
+
+/* Zarf gövdesi — beyaz/kağıt, dokulu (kadife değil) */
+.envelope__back,
+.envelope__front-left,
+.envelope__front-right {
+  position: absolute;
+  background-color: var(--cream);
+  background-image: var(--paper-noise);
+  background-blend-mode: multiply;
+  box-shadow: inset 0 0 24px rgba(0,0,0,0.08);
+}
+
+.envelope__back { inset: 0; border-radius: 6px; }
+
+/* Ambient occlusion — köşelerde ve kıvrım hatlarında hafif kararma */
+.envelope__ao {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(0,0,0,0.14) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.16) 0%, transparent 40%),
+    linear-gradient(90deg, rgba(0,0,0,0.10) 0%, transparent 8%, transparent 92%, rgba(0,0,0,0.10) 100%);
+}
+
+.envelope__front-left,
+.envelope__front-right {
+  bottom: 0;
+  width: 50%;
+  height: 48%;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.envelope__front-left { left: 0; -webkit-clip-path: polygon(0 0, 100% 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 100%, 0 100%); }
+.envelope__front-right { right: 0; -webkit-clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+/* İnce kağıt kıvrımı hissi: alt katlara hafif gölge/highlight */
+.envelope__front-left::after,
+.envelope__front-right::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 18%, rgba(0,0,0,0.06) 100%);
+  pointer-events: none;
+}
+
+/* Işık yansıması — fareye göre kayan hafif parlaklık */
+.envelope__sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle at var(--sheen-x, 50%) var(--sheen-y, 30%),
+    rgba(255,255,255,0.35) 0%,
+    rgba(255,255,255,0.08) 22%,
+    transparent 50%
+  );
+  transition: opacity 0.4s ease;
+}
+
+.envelope-wrap:hover .envelope__sheen { opacity: 1; }
+
+/* Davetiye ucu — beyaz, dokulu, dik dikdörtgen kağıt */
+.envelope__card-peek {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 4%;
+  height: 0%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  z-index: 1;
+}
+
+.peek-card {
+  width: 100%;
+  height: 240px;
+  flex-shrink: 0;
+  background-color: var(--cream-dim);
+  background-image: var(--paper-noise);
+  background-blend-mode: multiply;
+  border: 1px solid rgba(58,15,28,0.15);
+  border-radius: 2px;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.06);
+}
+
+/* Zarf dili (flap) — uzun, ortaya inen, beyaz kağıt, çok yavaş & yumuşak açılış */
+.envelope__flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 78%;
+  -webkit-clip-path: polygon(0 0, 100% 0, 50% 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background-color: var(--cream);
+  background-image: var(--paper-noise);
+  background-blend-mode: multiply;
+  transform-origin: top center;
+  transform: rotateX(0deg);
+  transition: transform 1.8s cubic-bezier(.16, 1, .3, 1);
+  z-index: 3;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+/* Katlanma hissi veren iç gölge — kapağın alt üçte birinde koyulaşır */
+.envelope__flap-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, transparent 55%, rgba(0,0,0,0.10) 100%);
+}
+
+.envelope--open .envelope__flap { transform: rotateX(178deg); }
+
+/* İç içe geçmiş Y & C monogramı — flap'in ucunda, bordo mürekkep tonu */
+.monogram {
+  position: absolute;
+  left: 50%;
+  top: 68%;
+  transform: translate(-50%, -50%);
+  width: 62px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  z-index: 1;
+}
+
+.monogram__y,
+.monogram__c {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--bordo);
+}
+
+.monogram__y { transform: translate(-8px, -2px) rotate(-6deg); }
+.monogram__c { transform: translate(9px, 2px) rotate(6deg); opacity: 0.92; }
+
+.envelope--open .monogram {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.4);
+}
+
+.envelope--open ~ .envelope__ground-shadow,
+.envelope--open .envelope__ground-shadow {
+  transform: translateY(-6px) scaleX(0.85);
+  opacity: 0.6;
+}
+
+/* Buton yerine: tıklanabilirliği ima eden sessiz ipucu */
+.open-cue {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.4s ease;
+}
+
+.open-cue__ring {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--silver);
+  animation: pulseRing 2.2s ease-in-out infinite;
+}
+
+@keyframes pulseRing {
+  0%, 100% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 0 0 rgba(199,204,209,0.45); }
+  50% { transform: scale(1.25); opacity: 0.5; box-shadow: 0 0 0 8px rgba(199,204,209,0); }
+}
+
+.open-cue[hidden] { display: none; }
+
+/* ==========================================================================
+   INVITATION CARD — sadece davetiye görseli, ekstra çerçeve/arkaplan yok
+   ========================================================================== */
+
+.invitation {
+  position: relative;
+  min-height: 100svh;
+  background-color: var(--bordo-dark);
+  background-image: var(--velvet-noise);
+  background-blend-mode: overlay;
+  padding: 4rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5rem;
+}
+
+.card {
+  width: min(94vw, 480px);
+  opacity: 0;
+  transform: translateY(40px) scale(0.94);
+  perspective: 1200px;
+}
+
+.reveal { opacity: 0; transform: translateY(16px) scale(0.98); filter: blur(4px); }
+
+.invitation-image-wrap {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: transform 0.5s var(--ease-soft);
+  transform-style: preserve-3d;
+}
+
+.invitation-image {
+  width: 100%;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.invitation-image-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle at var(--sheen-x, 50%) var(--sheen-y, 40%),
+    rgba(255,255,255,0.25) 0%,
+    rgba(255,255,255,0.05) 25%,
+    transparent 50%
+  );
+  transition: opacity 0.4s ease;
+}
+
+.invitation-image-wrap:hover::after { opacity: 1; }
+
+@media (hover: hover) {
+  .invitation-image-wrap:hover {
+    transform: rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg)) translateY(-2px);
+  }
+}
+
+/* ==========================================================================
+   SHARED SECTION STYLES
+   ========================================================================== */
+
+.section-title {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-style: italic;
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+  color: var(--silver-light);
+  text-align: center;
+  margin: 0 0 2rem;
+  letter-spacing: 0.02em;
+}
+
+.reveal-scroll {
+  width: 100%;
+  max-width: 720px;
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+  filter: blur(6px);
+}
+
+/* Countdown — gerçekçi "flip clock" kartları, beyaz zemin, mekanik yaprak dönüşü */
+
+.countdown__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.9rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.countdown__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.flip-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  perspective: 400px;
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
+}
+
+.flip-card__inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(.45, 0, .2, 1);
+}
+
+.flip-card__inner.is-flipping { transform: rotateX(-180deg); }
+
+.flip-card__face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f1f1 100%);
+  border-radius: 8px;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.flip-card__face span {
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 6.5vw, 2.4rem);
+  font-weight: 700;
+  color: var(--bordo-dark);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.flip-card__face--front { transform: rotateX(0deg); z-index: 2; }
+.flip-card__face--back { transform: rotateX(180deg); }
+
+/* Menteşe çizgisi: kartın tam ortasından geçen ince gölge hattı */
+.flip-card__face::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: rgba(0,0,0,0.18);
+  transform: translateY(-1px);
+  z-index: 3;
+}
+
+/* Üst yarı hafif daha açık, alt yarı hafif daha koyu — gerçek kağıt yaprağı hissi */
+.flip-card__face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 48%, rgba(0,0,0,0.05) 52%, transparent 100%);
+  pointer-events: none;
+}
+
+.countdown__label {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+}
+
+/* Location — premium kart + harita önizlemesi */
+
+.location { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1.2rem; }
+
+.location__card {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(246,238,222,0.05);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid rgba(199,204,209,0.28);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+  transition: transform 0.4s var(--ease-soft), box-shadow 0.4s var(--ease-soft);
+}
+
+@media (hover: hover) {
+  .location__card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 22px 50px rgba(0,0,0,0.38);
+  }
+}
+
+.location__map {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  filter: grayscale(0.25) saturate(1.1);
+}
+
+.location__map iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.location__info {
+  padding: 1.4rem 1.6rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.location__venue-name {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--silver-light);
+  margin: 0;
+}
+
+.location__address {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--cream-dim);
+  margin: 0 0 0.9rem;
+}
+
+.map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  border: 1px solid var(--silver);
+  color: var(--silver-light);
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  font-family: var(--font-heading);
+  letter-spacing: 0.05em;
+  transition: background 0.3s var(--ease-soft), color 0.3s var(--ease-soft), transform 0.2s ease;
+}
+
+.map-btn:hover,
+.map-btn:focus-visible {
+  background: var(--silver);
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+/* Footer */
+
+.site-footer {
+  text-align: center;
+  padding: 3rem 1rem 4rem;
+  font-family: var(--font-heading);
+  font-style: italic;
+  color: var(--cream-dim);
+  line-height: 1.7;
+}
+
+.footer__motif {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.4rem;
+}
+
+.footer__motif img {
+  width: min(70vw, 260px);
+  height: auto;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+.footer__signature {
+  margin-top: 1.2rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--silver-light);
+  font-style: normal;
+}
+
+/* ==========================================================================
+   MUSIC TOGGLE (popup kaldırıldı — müzik otomatik başlar)
+   ========================================================================== */
+
+.music-toggle {
+  position: fixed;
+  bottom: 1.4rem;
+  right: 1.4rem;
+  z-index: 60;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--silver);
+  background: rgba(20,10,13,0.7);
+  color: var(--silver-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+
+.music-toggle[hidden] { display: none; }
+.music-toggle.is-muted { opacity: 0.55; }
+
+/* ==========================================================================
+   CONFETTI
+   ========================================================================== */
+
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 250;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   ÇİÇEK YAPRAĞI (footer göründüğünde, konfettiden hemen önce)
+   ========================================================================== */
+
+.petals-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 240;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   FİNAL — sayfa sonunda hafif kararma
+   ========================================================================== */
+
+.final-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 230;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.35) 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 2.4s ease;
+}
+
+.final-dim.is-active { opacity: 1; }
+
+/* ==========================================================================
+   RESPONSIVE — TABLET & DESKTOP ENHANCEMENTS
+   ========================================================================== */
+
+@media (min-width: 640px) {
+  .envelope { width: min(52vw, 340px); }
+  .card { width: min(80vw, 520px); }
+  .countdown__grid { max-width: 520px; }
+}
+
+@media (min-width: 1024px) {
+  .envelope { width: 360px; }
+  .card { width: 560px; }
+  .invitation { gap: 7rem; padding-top: 6rem; }
+}

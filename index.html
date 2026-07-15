@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Yağmur & Cihangir</title>
+  <meta name="description" content="Yağmur & Cihangir'in düğününe davetlisiniz. 14.08.2026, Mandalina Park, Güzelbahçe.">
+  <meta name="keywords" content="düğün davetiyesi, wedding invitation, Yağmur Cihangir düğün">
+  <meta name="author" content="Yağmur & Cihangir">
+  <meta property="og:title" content="Yağmur & Cihangir - Düğün Davetiyesi">
+  <meta property="og:description" content="Bir ömür boyu sürecek hikayemize sizi de davet ediyoruz.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="tr_TR">
+  <meta property="og:image" content="invitation-frame.png">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#3a0f1c">
+  <link rel="canonical" href="./">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.85em%22 font-size=%2280%22>❤️</text></svg>">
+
+  <!-- Google Fonts: calligraphy display + elegant serif body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ================= INTRO / SPLASH ================= -->
+  <section id="intro" class="intro" aria-label="Açılış ekranı">
+    <div class="intro__doves" aria-hidden="true">
+      <img src="intro-doves.png" alt="" decoding="async">
+    </div>
+    <p class="intro__text">Bir Ömür Boyu Sürecek Hikayemiz</p>
+  </section>
+
+  <!-- ================= ENVELOPE ================= -->
+  <section id="envelope-stage" class="envelope-stage" aria-label="Davetiye zarfı">
+    <div class="atmosphere" aria-hidden="true">
+      <canvas id="particles-canvas"></canvas>
+    </div>
+
+    <div class="envelope-wrap" id="envelopeWrap" role="button" tabindex="0" aria-label="Davetiyeyi açmak için tıklayın">
+      <div class="envelope" id="envelope">
+        <img class="envelope__img" src="zarf.png" alt="Düğün zarfı" draggable="false">
+        <div class="envelope__ground-shadow" aria-hidden="true"></div>
+      </div>
+      <div class="open-cue" id="openCue" aria-hidden="true">
+        <span class="open-cue__ring"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= INVITATION CARD ================= -->
+  <main id="invitation" class="invitation" hidden>
+
+    <div class="card" id="mainCard">
+      <div class="invitation-image-wrap" id="invitationImageWrap">
+        <img
+          class="reveal invitation-image"
+          id="invitationImage"
+          src="davetiye.jpg"
+          alt="Yağmur ve Cihangir düğün davetiyesi — 14 Ağustos 2026, Mandalina Park, Güzelbahçe İzmir"
+          data-fallbacks="davetiye.jpeg,davetiye.JPG,davetiye.JPEG,davetiye.png,davetiye.PNG"
+          onerror="window.__tryNextImageSource && window.__tryNextImageSource(this)"
+        >
+      </div>
+    </div>
+
+    <!-- ================= COUNTDOWN ================= -->
+    <section class="countdown reveal-scroll" aria-label="Geri sayım">
+      <h2 class="section-title">Geri Sayım</h2>
+      <div class="countdown__grid">
+        <div class="countdown__item">
+          <div class="dial" id="dial-days">
+            <span class="dial__num" id="cd-days">30</span>
+          </div>
+          <span class="countdown__label">Gün</span>
+        </div>
+        <div class="countdown__item">
+          <div class="dial" id="dial-hours">
+            <span class="dial__num" id="cd-hours">00</span>
+          </div>
+          <span class="countdown__label">Saat</span>
+        </div>
+        <div class="countdown__item">
+          <div class="dial" id="dial-minutes">
+            <span class="dial__num" id="cd-minutes">00</span>
+          </div>
+          <span class="countdown__label">Dakika</span>
+        </div>
+        <div class="countdown__item">
+          <div class="dial" id="dial-seconds">
+            <span class="dial__num" id="cd-seconds">00</span>
+          </div>
+          <span class="countdown__label">Saniye</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= LOCATION ================= -->
+    <section class="location reveal-scroll" aria-label="Konum">
+      <h2 class="section-title">Konum</h2>
+      <div class="paper-card">
+        <div class="location__map">
+          <iframe
+            title="Mandalina Park konum önizlemesi"
+            src="https://www.google.com/maps?q=Mandalina+Park+Guzelbahce+Izmir&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+        <div class="location__info">
+          <p class="location__venue-name">Mandalina Park</p>
+          <p class="location__address">Güzelbahçe, İzmir</p>
+          <a
+            class="map-btn"
+            id="mapBtn"
+            href="https://www.google.com/maps/dir/?api=1&destination=Mandalina+Park+Guzelbahce+Izmir"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M3 12h18M13 5l7 7-7 7"/>
+            </svg>
+            <span>Yol Tarifi Al</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer reveal-scroll">
+      <div class="paper-card footer__card">
+        <div class="footer__motif" aria-hidden="true">
+          <img src="couple-motif.png" alt="" decoding="async">
+        </div>
+        <p class="footer__message">Bu mutlu günümüzde<br>sizleri aramızda görmekten<br>onur duyarız.</p>
+        <p class="footer__signature">Yağmur &amp; Cihangir</p>
+      </div>
+    </footer>
+
+  </main>
+
+  <button class="music-toggle" id="musicToggle" type="button" aria-label="Müziği aç/kapat" hidden>
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <path d="M9 18V5l12-2v13"/>
+      <circle cx="6" cy="18" r="3"/>
+      <circle cx="18" cy="16" r="3"/>
+    </svg>
+  </button>
+
+  <audio id="bgMusic" loop preload="auto">
+    <source src="muzik.mp3" type="audio/mpeg">
+    <source src="Pachelbel - Canon in D Major (Original Version).mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- ================= ÇİÇEK YAPRAĞI CANVAS (footer görününce, konfettiden önce) ================= -->
+  <canvas id="petalsCanvas" class="petals-canvas" aria-hidden="true"></canvas>
+
+  <!-- ================= CONFETTI CANVAS ================= -->
+  <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- ================= FINAL DIM OVERLAY ================= -->
+  <div id="finalDim" class="final-dim" aria-hidden="true"></div>
+
+  <!-- GSAP for orchestrated animation timelines (yedek CDN ile) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script>
+    // Birincil CDN yüklenemezse yedek CDN'den dene; o da olmazsa site
+    // GSAP'siz (sade geçişlerle) çalışmaya devam eder.
+    window.gsap || document.write('<script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"><\/script>');
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>

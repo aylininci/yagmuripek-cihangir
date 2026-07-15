@@ -1,0 +1,498 @@
+/* ==========================================================================
+   YAĞMUR & CİHANGİR — PREMIUM DÜĞÜN DAVETİYESİ
+   Fontlar:  Poppins (gövde) · Playfair Display (saat/rakam) · Oooh Baby (başlık/isim)
+   Renkler:  bordo velvet zemin · krem cotton kağıt kartlar · gümüş vurgu
+   ========================================================================== */
+
+:root {
+  --bordo-dark: #3a0f1c;
+  --bordo: #4a1420;
+  --bordo-soft: #5a1826;
+  --bordo-deep: #2e0a14;
+  --cream: #f7f3ea;
+  --cream-2: #efe8da;
+  --ink: #241016;
+  --ink-soft: #3a1a22;
+  --silver: #c7ccd1;
+  --silver-light: #e9e9e9;
+
+  --font-body: 'Poppins', system-ui, sans-serif;
+  --font-num: 'Playfair Display', serif;
+  --font-script: 'Oooh Baby', cursive;
+
+  /* Apple keynote benzeri easing */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-inout: cubic-bezier(.65, 0, .35, 1);
+
+  --card-w: min(92vw, 480px);
+  --section-gap: clamp(6rem, 14vw, 10rem);
+
+  --paper-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23p)' opacity='0.28'/></svg>");
+  --velvet-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='v'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23v)' opacity='0.42'/></svg>");
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--silver-light);
+  background-color: var(--bordo);
+  background-image: var(--velvet-noise);
+  background-blend-mode: overlay;
+  background-attachment: fixed;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Bordo velvet zeminde çok yavaş, fark edilmeyen ışık geçişi (~30sn) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 30%, rgba(255,220,180,0.06), transparent 60%);
+  animation: ambientLight 30s ease-in-out infinite;
+}
+
+@keyframes ambientLight {
+  0%, 100% { opacity: 0.4; transform: translate(0, 0); }
+  50% { opacity: 0.9; transform: translate(4%, 3%); }
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+
+:focus-visible { outline: 2px solid var(--silver-light); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-scroll, .opening__card, .opening__names, .envelope-wrap {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* ==========================================================================
+   AÇILIŞ KARTI
+   ========================================================================== */
+
+.opening {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  padding: 2rem;
+}
+
+.opening__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  opacity: 0;
+  transform: scale(0.94);
+  will-change: transform, opacity;
+}
+
+.opening__img {
+  width: min(62vw, 320px);
+  height: auto;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4));
+}
+
+.opening__names {
+  font-family: var(--font-script);
+  font-size: clamp(2.2rem, 8vw, 3.4rem);
+  color: var(--silver-light);
+  margin: 0;
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* ==========================================================================
+   ZARF EKRANI — statik, sadece mikro breathing/hover
+   ========================================================================== */
+
+.envelope-stage {
+  position: relative;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 2rem 1rem;
+}
+
+.envelope-stage[hidden] { display: none; }
+
+.atmosphere { position: absolute; inset: 0; pointer-events: none; }
+#particles-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.envelope-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6rem;
+  cursor: pointer;
+  max-height: 100svh;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.envelope-wrap img { -webkit-user-drag: none; user-select: none; pointer-events: none; }
+
+.envelope__hint {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.62rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(233,233,233,0.4);
+  margin-top: -0.4rem;
+  animation: hintPulse 2.6s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+.envelope {
+  width: min(74vw, min(56vh, 380px));
+  aspect-ratio: 1024 / 1536;
+  flex-shrink: 0;
+  /* iki katmanlı gölge + masaya bırakılmış his */
+  filter:
+    drop-shadow(0 6px 10px rgba(0,0,0,0.35))
+    drop-shadow(0 24px 40px rgba(0,0,0,0.30));
+  animation: envBreathe 6s ease-in-out infinite;
+  transition: transform 0.5s var(--ease-out);
+}
+
+.envelope__img { width: 100%; height: 100%; object-fit: contain; }
+
+@keyframes envBreathe {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.015) translateY(-4px); }
+}
+
+.envelope-wrap:hover .envelope { transform: scale(1.03); }
+
+.envelope__caption {
+  font-family: var(--font-script);
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  color: var(--silver-light);
+  text-align: center;
+  margin: 0;
+  line-height: 1.35;
+  opacity: 0.95;
+}
+
+/* ==========================================================================
+   ANA İÇERİK — ortak kart grid sistemi
+   ========================================================================== */
+
+.invitation {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--section-gap);
+  padding: clamp(4rem, 12vw, 8rem) 1rem clamp(3rem, 8vw, 5rem);
+}
+
+.invitation[hidden] { display: none; }
+
+.section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.reveal-scroll {
+  opacity: 0;
+  transform: translateY(40px) scale(0.97);
+  filter: blur(6px);
+}
+
+.section-title {
+  font-family: var(--font-script);
+  font-size: clamp(2.2rem, 8vw, 3.2rem);
+  color: var(--silver-light);
+  text-align: center;
+  margin: 0 0 2.2rem;
+  line-height: 1.1;
+  font-weight: 400;
+}
+
+/* ---- Ortak kart: cotton kağıt + emboss + 1px bevel + premium gölge ---- */
+.card {
+  width: var(--card-w);
+  background-color: var(--cream);
+  background-image: var(--paper-noise);
+  background-blend-mode: multiply;
+  border: 1px solid rgba(255,255,255,0.5);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.6) inset,
+    0 0 0 1px rgba(36,16,22,0.06),
+    0 10px 24px rgba(0,0,0,0.18),
+    0 30px 60px rgba(0,0,0,0.22);
+  overflow: hidden;
+  transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+}
+
+/* Davetiye kartı — görsel tam otursun, çerçeve kağıdı görselin kendisi.
+   İlk ekranda tamamı görünsün diye viewport yüksekliğine sığdırılır. */
+.section--invitation { min-height: 100svh; justify-content: center; padding: 1.5rem 0; }
+.card--invitation { padding: 0; line-height: 0; width: auto; max-width: var(--card-w); }
+.invitation-image {
+  width: auto;
+  max-width: 100%;
+  max-height: 88svh;
+  height: auto;
+}
+
+/* Konum — kart yok, doğrudan Google Maps, çok hafif oval köşe */
+.section--location { gap: 1.2rem; }
+
+.location__map {
+  position: relative;
+  width: var(--card-w);
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.location__skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(100deg, var(--cream-2) 30%, #f4eee2 50%, var(--cream-2) 70%);
+  background-size: 200% 100%;
+  animation: skeletonSweep 1.3s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+
+.location__skeleton.is-hidden { opacity: 0; pointer-events: none; }
+
+@keyframes skeletonSweep {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.location__map iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* Konuma Git — buton değil, sade yazı bağlantısı */
+.map-link {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver-light);
+  text-decoration: none;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(233,233,233,0.35);
+  transition: border-color 0.25s ease, opacity 0.25s ease;
+}
+
+.map-link:hover, .map-link:focus-visible {
+  border-color: var(--silver-light);
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   FOOTER — kart yok, büyük polaroid + yazılar
+   ========================================================================== */
+
+.site-footer {
+  gap: 2.4rem;
+  text-align: center;
+}
+
+.footer__polaroid {
+  width: min(94vw, 620px);
+  animation: floatY 5.5s ease-in-out infinite;
+}
+
+.footer__polaroid img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 16px 40px rgba(0,0,0,0.35));
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.footer__message {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(0.95rem, 3vw, 1.05rem);
+  line-height: 2;
+  color: rgba(233,233,233,0.8);
+  margin: 0;
+}
+
+.footer__signature {
+  font-family: var(--font-script);
+  font-size: clamp(2.6rem, 9vw, 3.6rem);
+  color: var(--silver-light);
+  margin: 0;
+  line-height: 1;
+}
+
+/* ==========================================================================
+   COUNTDOWN — Playfair Display, büyük rakamlar, Rolex mekanizması hissi
+   ========================================================================== */
+
+.countdown__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.6rem, 2vw, 1.1rem);
+  width: var(--card-w);
+}
+
+.countdown__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dial {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(180deg, #5a1826 0%, #3a0f1c 100%);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.06) inset,
+    0 -2px 0 rgba(0,0,0,0.35) inset,
+    0 12px 28px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.dial::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.08), transparent 65%);
+  pointer-events: none;
+}
+
+.dial__num {
+  font-family: var(--font-num);
+  font-weight: 600;
+  font-size: clamp(2.6rem, 10vw, 4.2rem);
+  line-height: 1;
+  color: var(--silver-light);
+  font-variant-numeric: tabular-nums;
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+}
+
+.dial__num.is-ticking { animation: dialTick 0.4s var(--ease-inout); }
+
+@keyframes dialTick {
+  0% { transform: translateY(0); opacity: 1; }
+  35% { transform: translateY(-42%); opacity: 0; }
+  36% { transform: translateY(42%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.countdown__label {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(233,233,233,0.75);
+}
+
+/* ==========================================================================
+   MÜZİK BUTONU
+   ========================================================================== */
+
+.music-toggle {
+  position: fixed;
+  bottom: 1.4rem;
+  right: 1.4rem;
+  z-index: 60;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--silver);
+  background: rgba(36,16,22,0.7);
+  color: var(--silver-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: opacity 0.3s ease;
+}
+
+.music-toggle.is-muted { opacity: 0.5; }
+
+/* ==========================================================================
+   KONFETİ / YAPRAK CANVAS
+   ========================================================================== */
+
+.confetti-canvas, .petals-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.petals-canvas { z-index: 240; }
+.confetti-canvas { z-index: 250; }
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (min-width: 640px) {
+  :root { --card-w: min(84vw, 500px); }
+  .countdown__grid { gap: 1.2rem; }
+}
+
+@media (min-width: 1024px) {
+  :root { --card-w: 540px; }
+}
+
+/* Mobilde zarf biraz daha büyük */
+@media (max-width: 520px) {
+  .envelope { width: min(84vw, 66vh); }
+  .countdown__grid { gap: 0.5rem; }
+  .dial__num { font-size: clamp(2rem, 12vw, 3rem); }
+}
